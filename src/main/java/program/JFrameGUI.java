@@ -5,67 +5,20 @@ package program;/*
  */
 
 import javax.swing.*;
-import java.io.*;
 
 /**
  * @author Student-PL
  */
 public class JFrameGUI extends javax.swing.JFrame {
 
-    public Thread exampleT = new Thread(new Runnable() {
-        public void run() {
-            while (true) {
-                SwingUtilities.invokeLater(() -> switchLights());
-                try {
-                    exampleT.sleep(1000*Integer.parseInt(Utils.loadFromPropertiesFile("LIGHTS_CHANGE_EVERY_X_SECONDS")));
-
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
-    });
 
     /**
      * Creates new form threads.program.JFrameGUI
      */
     public JFrameGUI() {
         initComponents();
-
-        String path_to_config_file = Utils.loadFromPropertiesFile("PATH_TO_CONFIG");
-
-        loadNumberOfCarsFromFile(path_to_config_file);
     }
 
-    private void loadNumberOfCarsFromFile(String path) {
-        String[] records = new String[20];
-
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            String line;
-            for (int i = 0; (line = reader.readLine()) != null; i++) {
-                records[i] = line;
-            }
-            reader.close();
-        } catch (Exception e) {
-            System.err.format("Exception occurred trying to read '%s'.", path);
-            e.printStackTrace();
-            throw new IllegalArgumentException();
-        }
-
-        numberOfCarsNorthLabel.setText(records[0]);
-        numberOfCarsSouthLabel.setText(records[1]);
-
-        if ("North Green and South Red".equals(records[2])) {
-            northernTrafficLight.setBackground(new java.awt.Color(51, 255, 51));
-            southernTrafficLight.setBackground(new java.awt.Color(255, 51, 51));
-        } else if ("North Red and South Green".equals(records[2])) {
-            northernTrafficLight.setBackground(new java.awt.Color(255, 51, 51));
-            southernTrafficLight.setBackground(new java.awt.Color(51, 255, 51));
-        }
-
-    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -264,20 +217,28 @@ public class JFrameGUI extends javax.swing.JFrame {
 
     private void addCarsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCarsButtonActionPerformed
 
-        //TODO VALIDATE THE INPUTS!!
-        int numberOfCarsToBeAdded = Integer.parseInt(numberOfCarsToBeAddedEditBox.getText());
+        try {
+            int numberOfCarsToBeAdded = Integer.parseInt(numberOfCarsToBeAddedEditBox.getText());
+            if (numberOfCarsToBeAdded < 0) {
+                throw new NumberFormatException();
+            }
 
+            System.out.println(numberOfCarsToBeAdded);
 
-        System.out.println(numberOfCarsToBeAdded);
+            if ("North".equals(northOrSouthMenu.getModel().getSelectedItem())) {
+                int newNumberOfCars = Integer.parseInt(numberOfCarsNorthLabel.getText().split(" ")[0]) + numberOfCarsToBeAdded;
+                numberOfCarsNorthLabel.setText(Integer.toString(newNumberOfCars) + " cars");
+            } else if ("South".equals(northOrSouthMenu.getModel().getSelectedItem())) {
+                int newNumberOfCars = Integer.parseInt(numberOfCarsSouthLabel.getText().split(" ")[0]) + numberOfCarsToBeAdded;
+                numberOfCarsSouthLabel.setText(Integer.toString(newNumberOfCars) + " cars");
+            } else {
+                throw new IllegalArgumentException("No such option/ illegal option");
+            }
+        } catch (NumberFormatException e) {
 
-        if ("North".equals(northOrSouthMenu.getModel().getSelectedItem())) {
-            int newNumberOfCars = Integer.parseInt(numberOfCarsNorthLabel.getText().split(" ")[0]) + numberOfCarsToBeAdded;
-            numberOfCarsNorthLabel.setText(Integer.toString(newNumberOfCars) + " cars");
-        } else if ("South".equals(northOrSouthMenu.getModel().getSelectedItem())) {
-            int newNumberOfCars = Integer.parseInt(numberOfCarsSouthLabel.getText().split(" ")[0]) + numberOfCarsToBeAdded;
-            numberOfCarsSouthLabel.setText(Integer.toString(newNumberOfCars) + " cars");
-        } else {
-            throw new IllegalArgumentException("No such option/ illegal option");
+            JOptionPane.showMessageDialog(this, "We need an integer number greater than zero, 20 would work great for instance");
+            numberOfCarsToBeAddedEditBox.setText("20");
+
         }
 
     }//GEN-LAST:event_addCarsButtonActionPerformed
@@ -311,17 +272,76 @@ public class JFrameGUI extends javax.swing.JFrame {
 
 
     public void switchLights() {
-        System.out.println("Switching lights");
         if (northernTrafficLight.getBackground().equals(new java.awt.Color(51, 255, 51))) {
-            northernTrafficLight.setBackground(new java.awt.Color(255, 51, 51));
-            southernTrafficLight.setBackground(new java.awt.Color(51, 255, 51));
+            setNorthernTrafficLightToRed();
+            setSouthernTrafficLightToGreen();
         } else {
-            northernTrafficLight.setBackground(new java.awt.Color(51, 255, 51));
-            southernTrafficLight.setBackground(new java.awt.Color(255, 51, 51));
+            setNorthernTrafficLightToGreen();
+            setSouthernTrafficLightToRed();
         }
     }
 
+    public void letOneNorthernCarGo() {
+
+        int numberOfCarsNorth = Integer.parseInt(numberOfCarsNorthLabel.getText().split(" ")[0]);
+        if (numberOfCarsNorth > 0) {
+            numberOfCarsNorthLabel.setText(Integer.toString(numberOfCarsNorth - 1) + " cars");
+        }
+    }
+
+    public void letOneSouthernCarGo() {
+
+        int numberOfCarsSouth = Integer.parseInt(numberOfCarsSouthLabel.getText().split(" ")[0]);
+        if (numberOfCarsSouth > 0) {
+            numberOfCarsSouthLabel.setText(Integer.toString(numberOfCarsSouth - 1) + " cars");
+        }
+    }
+
+    public boolean southernTrafficLightIsGreen() {
+        return southernTrafficLight.getBackground().equals(new java.awt.Color(51, 255, 51));
+
+    }
+
     public boolean northernTrafficLightIsGreen() {
-       return northernTrafficLight.getBackground().equals(new java.awt.Color(51, 255, 51));
+        return northernTrafficLight.getBackground().equals(new java.awt.Color(51, 255, 51));
+    }
+
+    public void setNumberOfCarsNorth(int number) {
+
+        numberOfCarsNorthLabel.setText(Integer.toString(number) + " cars");
+    }
+
+    public void setNumberOfCarsSouth(int number) {
+
+        numberOfCarsSouthLabel.setText(Integer.toString(number) + " cars");
+
+    }
+
+    public void setNorthernTrafficLightToGreen() {
+        northernTrafficLight.setBackground(new java.awt.Color(51, 255, 51));
+    }
+
+    public void setNorthernTrafficLightToRed() {
+        northernTrafficLight.setBackground(new java.awt.Color(255, 51, 51));
+    }
+
+    public void setSouthernTrafficLightToGreen() {
+        southernTrafficLight.setBackground(new java.awt.Color(51, 255, 51));
+    }
+
+    public void setSouthernTrafficLightToRed() {
+        southernTrafficLight.setBackground(new java.awt.Color(255, 51, 51));
+    }
+
+    public void tellUserConfigIsWrongAndQuit() {
+
+        JOptionPane.showMessageDialog(this,
+                "Config file error",
+                "Config file error",
+                JOptionPane.ERROR_MESSAGE);
+        System.out.println("Closing program");
+
+        System.exit(1); //non zero value to exit says abnormal termination of JVM
+
     }
 }

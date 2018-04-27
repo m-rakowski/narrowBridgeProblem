@@ -8,6 +8,8 @@ import threads.BridgeThread;
 import threads.ThreadNorth;
 import threads.ThreadSouth;
 
+import javax.swing.*;
+
 /**
  * @author Student-PL
  */
@@ -41,6 +43,12 @@ public class Main {
         JFrameGUI jFrameGUI = new JFrameGUI();
 
         java.awt.EventQueue.invokeLater(() -> jFrameGUI.setVisible(true));
+
+        //custom title, no icon
+        JOptionPane.showMessageDialog(null,
+                "This program solves the narrow bridge problem",
+                "Hello",
+                JOptionPane.PLAIN_MESSAGE);
 
         new BridgeThread(jFrameGUI).start();
         new ThreadNorth(jFrameGUI).start();
