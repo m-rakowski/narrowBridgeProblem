@@ -1,6 +1,7 @@
 package threads;
 
 import program.JFrameGUI;
+import program.Utilities;
 
 public class ThreadNorth extends Thread {
 
@@ -10,17 +11,18 @@ public class ThreadNorth extends Thread {
         this.jFrameGUI = jFrameGUI;
     }
 
-    // sprawdzać ustawienie semafora oraz przepuszczać pojazdy, gdy otrzymają zezwolenie.
-    private void checkLights() {
-        if(jFrameGUI.northernTrafficLightIsGreen()){
-            letOneCarGo();
 
+    public void run() {
+        while (true) {
+            try {
+                sleep(Integer.parseInt(Utilities.loadFromPropertiesFile("NORTHERN_CARS_SPEED")));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (jFrameGUI.northernTrafficLightIsGreen()) {
+                jFrameGUI.letOneNorthernCarGo();
+            }
         }
-
     }
-
-    private void letOneCarGo() {
-    }
-
-
 }

@@ -1,7 +1,7 @@
-package threads;//Wątek most powinien implementować metody, odpowiadające za odczyt danych z pliku
-//        tekstowego, ustawianie semafora, zmianę kolorów świateł oraz zapis danych do pliku.
+package threads;
 
 import program.JFrameGUI;
+import program.Utilities;
 
 public class ThreadSouth extends Thread {
 
@@ -11,8 +11,18 @@ public class ThreadSouth extends Thread {
         this.jFrameGUI = jFrameGUI;
     }
 
-    // sprawdzać ustawienie semafora oraz przepuszczać pojazdy, gdy otrzymają zezwolenie.
-    private void checkLights() {
-    }
 
+    public void run() {
+        while (true) {
+            try {
+                sleep(Integer.parseInt(Utilities.loadFromPropertiesFile("SOUTHERN_CARS_SPEED")));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (jFrameGUI.southernTrafficLightIsGreen()) {
+                jFrameGUI.letOneSouthernCarGo();
+            }
+        }
+    }
 }
